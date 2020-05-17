@@ -1,8 +1,14 @@
-{-# OPTIONS --without-K --exact-split --safe #-}
+{-# OPTIONS --without-K --exact-split --safe --cubical #-}
 
 module HoTT-UF-Agda where
 
 open import Universes public
+
+import Agda.Builtin.Cubical.Path
+
+lam : ∀ {a b} {A : Type a} {B : A → Type b}  → ((x : A) → B x) -> (x : A) -> B x
+lam f = f
+
 
 variable
  𝓤 𝓥 𝓦 𝓣 : Universe
@@ -3109,11 +3115,11 @@ weak-unique-existence-gives-unique-existence-sometimes A i ((x , a) , u) = (x , 
        K n ∙ refl _                                                            ≡⟨ refl _ ⟩
        K n                                                                     ∎
         where
-         i   = λ n → ap (K n ∙ ap g (s (p , K) n) ∙_)
+         i   = lam λ n → ap (K n ∙ ap g (s (p , K) n) ∙_)
                         (refl-left {_} {_} {_} {_} {ap g ((s (p , K) n)⁻¹)})
-         ii  = λ n → ∙assoc (K n) (ap g (s (p , K) n)) (ap g ((s (p , K) n)⁻¹))
-         iii = λ n → ap (λ - → K n ∙ (ap g (s (p , K) n) ∙ -)) (ap⁻¹ g (s (p , K) n) ⁻¹)
-         iv  = λ n → ap (K n ∙_) (⁻¹-right∙ (ap g (s (p , K) n)))
+         ii  = lam λ n → ∙assoc (K n) (ap g (s (p , K) n)) (ap g ((s (p , K) n)⁻¹))
+         iii = lam λ n → ap (λ - → K n ∙ (ap g (s (p , K) n) ∙ -)) (ap⁻¹ g (s (p , K) n) ⁻¹)
+         iv  = lam λ n → ap (K n ∙_) (⁻¹-right∙ (ap g (s (p , K) n)))
 
       q = r (s (p , K))                                                      ≡⟨ refl _ ⟩
           p , (λ n → s (p , K) (succ n) ∙ (refl _ ∙ ap g ((s (p , K) n)⁻¹))) ≡⟨ vi     ⟩
@@ -3126,8 +3132,8 @@ weak-unique-existence-gives-unique-existence-sometimes A i ((x , a) , u) = (x , 
                  (h ∼ ℕ-iteration Y y₀ g)        ◁⟨ ii h     ⟩
                  (h ≡ ℕ-iteration Y y₀ g)        ◀
    where
-    i  = λ h → Σ-retract (λ _ → ≃-gives-◁ (happly (h ∘ succ) (g ∘ h) , hfe _ _))
-    ii = λ h → ≃-gives-▷ (happly h (ℕ-iteration Y y₀ g) , hfe _ _)
+    i  = lam λ h → Σ-retract (λ _ → ≃-gives-◁ (happly (h ∘ succ) (g ∘ h) , hfe _ _))
+    ii = lam λ h → ≃-gives-▷ (happly h (ℕ-iteration Y y₀ g) , hfe _ _)
 
   lemma₂ : (Σ h ꞉ (ℕ → Y), (h 0 ≡ y₀) × (h ∘ succ ≡ g ∘ h))
          ◁ (Σ h ꞉ (ℕ → Y), h ≡ ℕ-iteration Y y₀ g)
@@ -3430,13 +3436,13 @@ being-hae-is-subsingleton : dfunext 𝓥 𝓤 → hfunext 𝓥 𝓥 → dfunext 
 
 being-hae-is-subsingleton fe₀ fe₁ fe₂ {X} {Y} f = subsingleton-criterion' γ
  where
-  a = λ g ε x
+  a = lam λ g → lam λ ε → lam λ x
     → ((g (f x) , ε (f x)) ≡ (x , refl (f x)))                                   ≃⟨ i  g ε x ⟩
       (Σ p ꞉ g (f x) ≡ x , transport (λ - → f - ≡ f x) p (ε (f x)) ≡ refl (f x)) ≃⟨ ii g ε x ⟩
       (Σ p ꞉ g (f x) ≡ x , ap f p ≡ ε (f x))                                     ■
    where
-    i  = λ g ε x → Σ-≡-≃ (g (f x) , ε (f x)) (x , refl (f x))
-    ii = λ g ε x → Σ-cong (λ p → transport-ap-≃ f p (ε (f x)))
+    i  = lam λ g → lam λ ε → lam λ x → Σ-≡-≃ (g (f x) , ε (f x)) (x , refl (f x))
+    ii = lam λ g → lam λ ε → lam λ x → Σ-cong (λ p → transport-ap-≃ f p (ε (f x)))
 
   b = (Σ (g , ε) ꞉ has-section f , ∀ x → (g (f x) , ε (f x)) ≡ (x , refl (f x)))         ≃⟨ i   ⟩
       (Σ (g , ε) ꞉ has-section f , ∀ x → Σ  p ꞉ g (f x) ≡ x , ap f p ≡ ε (f x))          ≃⟨ ii  ⟩
@@ -4167,8 +4173,8 @@ being-representable-is-subsingleton fe {X} A r₀ r₁ = γ
             ((y : X) → 𝓨 x y ≡ A y)   ≃⟨ ii x ⟩
             ((y : X) → 𝓨 x y ≃ A y)   ■
     where
-     i  = λ x → (happly (𝓨 x) A , hfe (𝓨 x) A)
-     ii = λ x → Π-cong dfe dfe
+     i  = lam λ x → (happly (𝓨 x) A , hfe (𝓨 x) A)
+     ii = lam λ x → Π-cong dfe dfe
                  (λ y → univalence-≃ (ua 𝓤)
                          (𝓨 x y) (A y))
 
@@ -4996,7 +5002,7 @@ module sip where
   when-canonical-map-is-equiv = (λ e s → fiberwise-equiv-universal (A s) s (τ s) (e s)) ,
                                 (λ φ s → universal-fiberwise-equiv (A s) (φ s) s (τ s))
    where
-    A = λ s t → ι (X , s) (X , t) (id-≃ X)
+    A = lam λ s → lam λ t → ι (X , s) (X , t) (id-≃ X)
     τ = canonical-map ι ρ
 
   canonical-map-equiv-criterion : ((s t : S X) → (s ≡ t) ≃ ι (X , s) (X , t) (id-≃ X))
@@ -5027,7 +5033,7 @@ module ∞-magma-identity {𝓤 : Universe} where
  sns-data = (ι , ρ , θ)
   where
    ι : (A B : ∞-Magma) → ⟨ A ⟩ ≃ ⟨ B ⟩ → 𝓤 ̇
-   ι (X , _·_) (Y , _*_) (f , _) = (λ x x' → f (x · x')) ≡ (λ x x' → f x * f x')
+   ι (X , _·_) (Y , _*_) (f , _) = (lam λ x → lam λ x' → f (x · x')) ≡ (λ x x' → f x * f x')
 
    ρ : (A : ∞-Magma) → ι A A (id-≃ ⟨ A ⟩)
    ρ (X , _·_) = refl _·_
@@ -5047,7 +5053,7 @@ module ∞-magma-identity {𝓤 : Universe} where
  (X , _·_) ≅ (Y , _*_) =
 
            Σ f ꞉ (X → Y), is-equiv f
-                        × ((λ x x' → f (x · x')) ≡ (λ x x' → f x * f x'))
+                        × ((lam λ x → lam λ x' → f (x · x')) ≡ (λ x x' → f x * f x'))
 
  characterization-of-∞-Magma-≡ : is-univalent 𝓤 → (A B : ∞-Magma) → (A ≡ B) ≃ (A ≅ B)
  characterization-of-∞-Magma-≡ ua = characterization-of-≡ ua sns-data
@@ -5143,7 +5149,7 @@ module magma-identity {𝓤 : Universe} where
  (X , _·_ , _) ≅ (Y , _*_ , _) =
 
                Σ f ꞉ (X → Y), is-equiv f
-                            × ((λ x x' → f (x · x')) ≡ (λ x x' → f x * f x'))
+                            × ((lam λ x → lam λ x' → f (x · x')) ≡ (λ x x' → f x * f x'))
 
  characterization-of-Magma-≡ : is-univalent 𝓤 → (A B : Magma ) → (A ≡ B) ≃ (A ≅ B)
  characterization-of-Magma-≡ ua =
@@ -5326,7 +5332,7 @@ module pointed-∞-magma-identity {𝓤 : Universe} where
  (X ,  _·_ , x₀) ≅ (Y ,  _*_ , y₀) =
 
                  Σ f ꞉ (X → Y), is-equiv f
-                              × ((λ x x' → f (x · x')) ≡ (λ x x' → f x * f x'))
+                              × ((lam λ x → lam λ x' → f (x · x')) ≡ (λ x x' → f x * f x'))
                               × (f x₀ ≡ y₀)
 
  characterization-of-pointed-magma-≡ : is-univalent 𝓤
@@ -5393,7 +5399,7 @@ module monoid-identity {𝓤 : Universe} (ua : is-univalent 𝓤) where
  (X , (_·_ , d) , _) ≅ (Y , (_*_ , e) , _) =
 
                      Σ f ꞉ (X → Y), is-equiv f
-                                  × ((λ x x' → f (x · x')) ≡ (λ x x' → f x * f x'))
+                                  × ((lam λ x → lam λ x' → f (x · x')) ≡ (λ x x' → f x * f x'))
                                   × (f d ≡ e)
 
  characterization-of-monoid-≡ : is-univalent 𝓤
@@ -5421,7 +5427,7 @@ module associative-∞-magma-identity
  ∞-aMagma = Σ X ꞉ 𝓤 ̇ , ∞-amagma-structure X
 
  homomorphic : {X Y : 𝓤 ̇ } → (X → X → X) → (Y → Y → Y) → (X → Y) → 𝓤 ̇
- homomorphic _·_ _*_ f = (λ x y → f (x · y)) ≡ (λ x y → f x * f y)
+ homomorphic _·_ _*_ f = (lam λ x → lam λ y → f (x · y)) ≡ (λ x y → f x * f y)
 
  respect-assoc : {X A : 𝓤 ̇ } (_·_ : X → X → X) (_*_ : A → A → A)
                → associative _·_ → associative _*_
@@ -5429,11 +5435,11 @@ module associative-∞-magma-identity
 
  respect-assoc _·_ _*_ α β f h  =  fα ≡ βf
   where
-   l = λ x y z → f ((x · y) · z)   ≡⟨ ap (λ - → - (x · y) z) h ⟩
+   l = lam λ x → lam λ y → lam λ z → f ((x · y) · z)   ≡⟨ ap (λ - → - (x · y) z) h ⟩
                  f (x · y) * f z   ≡⟨ ap (λ - → - x y * f z) h ⟩
                  (f x * f y) * f z ∎
 
-   r = λ x y z → f (x · (y · z))   ≡⟨ ap (λ - → - x (y · z)) h ⟩
+   r = lam λ x → lam λ y → lam λ z → f (x · (y · z))   ≡⟨ ap (λ - → - x (y · z)) h ⟩
                  f x * f (y · z)   ≡⟨ ap (λ - → f x * - y z) h ⟩
                  f x * (f y * f z) ∎
 
@@ -5564,7 +5570,7 @@ module group-identity {𝓤 : Universe} (ua : is-univalent 𝓤) where
  (X , ((_·_ , d) , _) , _) ≅ (Y , ((_*_ , e) , _) , _) =
 
             Σ f ꞉ (X → Y), is-equiv f
-                         × ((λ x x' → f (x · x')) ≡ (λ x x' → f x * f x'))
+                         × ((lam λ x → lam λ x' → f (x · x')) ≡ (λ x x' → f x * f x'))
                          × (f d ≡ e)
 
  characterization-of-group-≡ : (A B : Group) → (A ≡ B) ≃ (A ≅ B)
@@ -5575,7 +5581,7 @@ module group-identity {𝓤 : Universe} (ua : is-univalent 𝓤) where
  (X , ((_·_ , d) , _) , _) ≅' (Y , ((_*_ , e) , _) , _) =
 
             Σ f ꞉ (X → Y), is-equiv f
-                         × ((λ x x' → f (x · x')) ≡ (λ x x' → f x * f x'))
+                         × ((lam λ x → lam λ x' → f (x · x')) ≡ (λ x x' → f x * f x'))
 
  group-structure-of : (G : Group) → group-structure ⟨ G ⟩
  group-structure-of (X , ((_·_ , e) , i , l , r , a) , γ) = (_·_ , e) , i , l , r , a
@@ -6343,9 +6349,9 @@ module type-valued-preorder-identity
    𝓕 : {x y : Ob 𝓧} → hom 𝓧 x y → hom 𝓐 (F x) (F y)
    𝓕 f = 𝓕' _ _ f
 
-   pidentity = (λ x → 𝓕 (𝒾𝒹 𝓧 x)) ≡ (λ x → 𝒾𝒹 𝓐 (F x))
+   pidentity = (lam λ x → 𝓕 (𝒾𝒹 𝓧 x)) ≡ (λ x → 𝒾𝒹 𝓐 (F x))
 
-   pcomposition = (λ x y z (f : hom 𝓧 x y) (g : hom 𝓧 y z) → 𝓕 (g o f))
+   pcomposition = (lam λ x → lam λ y → lam λ z (f : hom 𝓧 x y) (g : hom 𝓧 y z) → 𝓕 (g o f))
                 ≡ (λ x y z (f : hom 𝓧 x y) (g : hom 𝓧 y z) → 𝓕 g □ 𝓕 f)
 
  sns-data : SNS S (𝓤 ⊔ (𝓥 ⁺))
@@ -6587,9 +6593,9 @@ module category-identity
    𝓕 : {x y : Ob 𝓧} → hom 𝓧 x y → hom 𝓐 (F x) (F y)
    𝓕 f = 𝓕' _ _ f
 
-   pidentity    = (λ x → 𝓕 (𝒾𝒹 𝓧 x)) ≡ (λ x → 𝒾𝒹 𝓐 (F x))
+   pidentity    = (lam λ x → 𝓕 (𝒾𝒹 𝓧 x)) ≡ (λ x → 𝒾𝒹 𝓐 (F x))
 
-   pcomposition = (λ x y z (f : hom 𝓧 x y) (g : hom 𝓧 y z) → 𝓕 (g o f))
+   pcomposition = (lam λ x → lam λ y → lam λ z (f : hom 𝓧 x y) (g : hom 𝓧 y z) → 𝓕 (g o f))
                 ≡ (λ x y z (f : hom 𝓧 x y) (g : hom 𝓧 y z) → 𝓕 g □ 𝓕 f)
 
  _⋍_ : Cat → Cat → 𝓤 ⊔ 𝓥 ̇
@@ -7251,8 +7257,8 @@ module ring-identity {𝓤 : Universe} (ua : Univalence) where
 
                        Σ f ꞉ (R → R')
                            , is-equiv f
-                           × ((λ x y → f (x + y)) ≡ (λ x y → f x +' f y))
-                           × ((λ x y → f (x · y)) ≡ (λ x y → f x ·' f y))
+                           × ((lam λ x → lam λ y → f (x + y)) ≡ (λ x y → f x +' f y))
+                           × ((lam λ x → lam λ y → f (x · y)) ≡ (λ x y → f x ·' f y))
 
  characterization-of-rng-≡ : (𝓡 𝓡' : Rng) → (𝓡 ≡ 𝓡') ≃ (𝓡 ≅[Rng] 𝓡')
  characterization-of-rng-≡ = sip.characterization-of-≡ (ua 𝓤)
@@ -7315,8 +7321,8 @@ module ring-identity {𝓤 : Universe} (ua : Univalence) where
                            Σ f ꞉ (R → R')
                                , is-equiv f
                                × (f 𝟏 ≡ 𝟏')
-                               × ((λ x y → f (x + y)) ≡ (λ x y → f x +' f y))
-                               × ((λ x y → f (x · y)) ≡ (λ x y → f x ·' f y))
+                               × ((lam λ x → lam λ y → f (x + y)) ≡ (λ x y → f x +' f y))
+                               × ((lam λ x → lam λ y → f (x · y)) ≡ (λ x y → f x ·' f y))
 
  characterization-of-ring-≡ : (𝓡 𝓡' : Ring) → (𝓡 ≡ 𝓡') ≃ (𝓡 ≅[Ring] 𝓡')
  characterization-of-ring-≡ = sip.characterization-of-≡ (ua 𝓤)
@@ -7362,8 +7368,8 @@ module ring-identity {𝓤 : Universe} (ua : Univalence) where
 
                               Σ f ꞉ (R → R')
                                   , is-equiv f
-                                  × ((λ x y → f (x + y)) ≡ (λ x y → f x +' f y))
-                                  × ((λ x y → f (x · y)) ≡ (λ x y → f x ·' f y))
+                                  × ((lam λ x → lam λ y → f (x + y)) ≡ (λ x y → f x +' f y))
+                                  × ((lam λ x → lam λ y → f (x · y)) ≡ (λ x y → f x ·' f y))
 
   NB : (𝓡 𝓡' : NoetherianRng)
      → (𝓡 ≅[NoetherianRng] 𝓡') ≡ (forget-Noether 𝓡 ≅[Rng] forget-Noether 𝓡')
@@ -7425,8 +7431,8 @@ module ring-identity {𝓤 : Universe} (ua : Univalence) where
                                   Σ f ꞉ (R → R')
                                       , is-equiv f
                                       × (f 𝟏 ≡ 𝟏')
-                                      × ((λ x y → f (x + y)) ≡ (λ x y → f x +' f y))
-                                      × ((λ x y → f (x · y)) ≡ (λ x y → f x ·' f y))
+                                      × ((lam λ x → lam λ y → f (x + y)) ≡ (λ x y → f x +' f y))
+                                      × ((lam λ x → lam λ y → f (x · y)) ≡ (λ x y → f x ·' f y))
 
   forget-CNL : CNL-Ring → Ring
   forget-CNL (𝓡 , _) = 𝓡
@@ -8833,6 +8839,9 @@ DNE-gives-SN = sol
   sol : DNE 𝓤 → SN 𝓤
   sol dne P i = ¬ P , dni P , dne P i
 
+
+
+
 infix   0 _∼_
 infixr 50 _,_
 infixr 30 _×_
@@ -8858,3 +8867,4 @@ infixr -1 -Σ
 infixr -1 -Π
 infixr -1 -∃!
 
+-- -}
